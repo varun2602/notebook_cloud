@@ -2,6 +2,8 @@ const express = require("express")
 const router = express.Router()
 const User = require("../models/Users.js")
 const { body, validationResult } = require('express-validator');
+var jwt = require('jsonwebtoken');
+var JWT_SECRET = "VARUN_K"
 
 router.post("/",[
    body("name", "Name is required").notEmpty(),
@@ -9,17 +11,34 @@ router.post("/",[
    body("email","Invalid email format").isEmail()
 ]
 
-, function(req, res){
+, async function(req, res){
    
    const result = validationResult(req);
    
    if (result.isEmpty()) {
-      const user = User(req.body)
-      user.save()
+      const user = new User(req.body)
+      // check if user already exists  
+      const user_exists = await User.findOne({"email":req.body.email})
+      console.log(user_exists)
+      if(user_exists){
+         return res.status(400).json({"message":"A user with the email id already exists!"})
+      }
+      // console.log(user)
+      await user.save()
+
+      // JWT 
+      data = {
+         user:{
+            id:user.id
+         }
+      }
+      // console.log(data)
+      var token = jwt.sign(data, JWT_SECRET);
+      // console.log(token)
       obj = {
          "message":"Data created successfully"
       }
-      return res.json(obj)
+      return res.json({token})
      
    }
  
