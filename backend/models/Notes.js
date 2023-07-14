@@ -4,7 +4,7 @@ const {Schema} = mongoose
 const NotesSchema = new Schema({
     users:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"users"
+        ref:"users "
     },
     title:{
         type:String,
